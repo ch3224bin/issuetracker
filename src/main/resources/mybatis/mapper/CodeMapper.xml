@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.john.cena.mapper.CodeMapper">
+	<select id="selectCodeList" parameterType="Code" resultType="Code">
+		<include refid="selectCodeSql" />
+	</select>
+	
+	<select id="selectCode" parameterType="Code" resultType="Code">
+		<include refid="selectCodeSql" />
+		   AND A.CODE = #{code}
+	</select>
+	
+	<sql id="selectCodeSql">
+	    SELECT A.*,
+		       B.LANG, B.LABEL
+		  FROM CODE A, LABEL B
+		 WHERE A.ID = B.CODE_ID
+		   AND A.CODE_GROUP = #{codeGroup}
+		   AND B.LANG = #{lang}
+	</sql>
+</mapper>

@@ -1,0 +1,5 @@
+.authenticated .title {font: bold; font-size: 2em;}
+.authenticated nav {width: 100%;}
+.authenticated nav .fR {float: right;}
+.authenticated .list {padding-top: 15px;}
+.authenticated .search {margin: 5px 0px 5px 0px;}

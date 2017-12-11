@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.john.cena.mapper.IssueMapper">
+
+	<select id="selectIssueList" parameterType="Issue" resultType="Issue">
+		<include refid="selectIssueSql" />
+		<where>
+			<if test="id != null and id.length() > 0">
+				AND UPPER(ID) LIKE '%' || UPPER(#{id}) || '%'
+			</if>
+			<if test="title != null and title.length() > 0">
+				AND UPPER(TITLE) LIKE '%' || UPPER(#{title}) || '%'
+			</if>
+			<if test="priority != null and priority.length() > 0">
+				AND PRIORITY = #{priority}
+			</if>
+			<if test="assignee != null and assignee.length() > 0">
+				AND ASSIGNEE = #{assignee}
+			</if>
+			<if test="assigneeLabel != null and assigneeLabel.length() > 0">
+				AND EXISTS (
+					SELECT * FROM USER A
+					WHERE ASSIGNEE = A.ID
+					  AND UPPER(A.NICKNAME) LIKE '%' || UPPER(#{assigneeLabel}) || '%')
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectIssue" parameterType="String" resultType="Issue">
+		<include refid="selectIssueSql" />
+		<where>
+			AND ID = #{id}
+		</where>
+	</select>
+	
+	<sql id="selectIssueSql">
+		SELECT 
+			ID,
+			TITLE,
+			DESCRIPTION,
+			PRIORITY,
+			(SELECT B.LABEL FROM CODE A, LABEL B
+			  WHERE A.ID = B.CODE_ID
+			    AND A.CODE = PRIORITY
+			    AND A.CODE_GROUP = 'PRIORITY'
+			    AND B.LANG = 'en') AS PRIORITY_LABEL,
+			STATUS,
+			(SELECT B.LABEL FROM CODE A, LABEL B
+			  WHERE A.ID = B.CODE_ID
+			    AND A.CODE = STATUS
+			    AND A.CODE_GROUP = 'STATUS'
+			    AND B.LANG = 'en') AS STATUS_LABEL,
+			(SELECT A.NICKNAME FROM USER A
+			  WHERE ASSIGNEE = A.ID) AS ASSIGNEE_LABEL,
+			ASSIGNEE,
+			TO_CHAR(CREATE_DATE, 'YYYY-MM-DD') CREATE_DATE,
+			TO_CHAR(UPDATE_DATE, 'YYYY-MM-DD') UPDATE_DATE,
+			TO_CHAR(RESOLVED_DATE , 'YYYY-MM-DD') RESOLVED_DATE
+		FROM ISSUE
+	</sql>
+	
+	<select id="selectMaxIssueId" resultType="Issue">
+		SELECT ISSUE_SEQ.NEXTVAL ID FROM DUAL
+	</select>
+	
+	<insert id="createIssue" parameterType="Issue">
+		INSERT INTO ISSUE (ID, TITLE, DESCRIPTION, PRIORITY, STATUS, ASSIGNEE, CREATE_DATE)
+		VALUES (#{id}, #{title}, #{description}, #{priority}, 'OPEN', #{assignee}, SYSDATE)
+	</insert>
+	
+	<update id="updateIssue" parameterType="Issue">
+		UPDATE ISSUE
+		<set>
+			UPDATE_DATE = SYSDATE,
+			<if test="title!= null and title.length() > 0">
+		       TITLE = #{title},
+			</if>
+			<if test="description!= null and description.length() > 0">
+		       DESCRIPTION = #{description},
+			</if>
+			<if test="priority!= null and priority.length() > 0">
+		       PRIORITY = #{priority},
+			</if>
+			<if test="assignee!= null and assignee.length() > 0">
+		       ASSIGNEE = #{assignee},
+			</if>
+			<if test="status!= null and status.length() > 0">
+			   STATUS = #{status},
+			</if>
+		</set>
+		 WHERE ID = #{id}
+	</update>
+	
+	<delete id="deleteIssue" parameterType="String">
+		DELETE FROM ISSUE WHERE ID = #{id}
+	</delete>
+</mapper>

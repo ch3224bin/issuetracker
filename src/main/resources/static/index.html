@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/redmond/jquery-ui.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.2/css/ui.jqgrid.min.css">
+<link rel="stylesheet" href="/css/index.css">
+<title>Title</title>
+</head>
+<body>
+<!-- TODO 코멘트, start, stop, resolve, close, reopen -->
+	<div class="unauthenticated">
+		<a href="/login"><img src="/image/naver_login.PNG"></a>
+	</div>
+	<div class="authenticated" style="display:none">
+	    <nav><span class="title">Issue Tracker</span><img id="profileImage" class="fR"><span id="user" class="fR"></span></nav>
+	    <div class="list">
+		    <div class="button">
+		    	<button id="regist">Open Issue</button>
+		    </div>
+		    <div class="search">
+		    	<form>
+			    	<label for="searchId">Issue No.</label>
+			    	<input id="searchId" name="id" >
+			    	<label for="searchTitle">Title</label>
+			    	<input id="searchTitle" name="title" >
+			    	<label for="searchAssignee">Assignee</label>
+			    	<input id="searchAssignee" name="assigneeLabel" >
+			    	<button id="search">Search</button>
+		    	</form>
+		    </div>
+		    <table id="grid"></table>
+	    </div>
+	    <div class="board" style="display:none">
+	    	<button id="listBtn">List</button>
+	    	<button id="createBtn" class="authorization">Create</button>
+	    	<button id="saveBtn" class="authorization">Save</button>
+	    	<button id="assignBtn" class="authorization">Assign</button>
+	    	<button id="startProgressBtn" class="authorization">Start Progress</button>
+	    	<button id="stopProgressBtn" class="authorization">Stop Progress</button>
+	    	<button id="resolveBtn" class="authorization">Resolve</button>
+	    	<button id="closeBtn" class="authorization">Close</button>
+	    	<button id="reopenBtn" class="authorization">Reopen</button>
+	    	<button id="cancelBtn" class="authorization">Cancel</button>
+	    	<form>
+	    		<input type="hidden" name="id">
+		    	<table>
+		    		<tr>
+		    			<th>Title</th>
+		    			<td><input name="title"></td>
+		    		</tr>
+		    		<tr>
+		    			<th>Status</th>
+		    			<td><input name="statusLabel" readonly="readonly"></td>
+		    		</tr>
+		    		<tr>
+		    			<th>Priority</th>
+		    			<td><select name="priority"></select></td>
+		    		</tr>
+		    		<tr>
+		    			<th>Assignee</th>
+		    			<td><select name="assignee"></select></td>
+		    		</tr>
+		    		<tr>
+		    			<th>Description</th>
+		    			<td>
+		    				<textarea name="description"></textarea>
+		    			</td>
+		    		</tr>
+		    	</table>
+	    	</form>
+	    </div>
+	</div>
+	<div id="dialog-confirm" style="display: none;">
+		<form>
+			<div><label for="popAssignee">Assignee</label><select id="popAssignee" name="assignee"></select></div>
+			<div><label for="popComment">Comment</label><textarea id="popComment" name="comment"></textarea></div>
+		</form>
+	</div>
+	
+		
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.15.2/jquery.jqgrid.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script src="/js/jquery.serialize-object.min.js"></script>
+	<script src="/js/index.js"></script>
+	<script type="text/javascript">
+	$(function () {
+	    "use strict";
+	    
+	    /**
+	     * 리스트 영역 Controller 
+	     */
+	    var listController = (function() {
+	    	
+    		/* CSRF 처리 */
+	    	var handleCsrf = function() {
+	    		$.ajaxSetup({
+	    			beforeSend : function(xhr, settings) {
+	    			  if (settings.type == 'POST' || settings.type == 'PATCH'
+	    			      || settings.type == 'DELETE') {
+	    			    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+	    			      xhr.setRequestHeader("X-XSRF-TOKEN", Cookies.get('XSRF-TOKEN'));
+	    			    }
+	    			  }
+	    			}
+	    		});
+	    	};
+	    	
+	    	/* 상단 현재 접속자 정보 세팅 */
+	    	var setUserInfo = function(nickname, profileImageSrc) {
+	    		$("#user").html(nickname);
+    	        $("#profileImage").attr('src', profileImageSrc);
+	    	};
+	    	
+	    	var hideLoginAndShowBoard = function() {
+	    		$(".unauthenticated").hide();
+    	        $(".authenticated").show();
+	    	};
+	    	
+	    	/* 그리드 초기화 */
+	    	var loadGrid = function() {
+	    		$("#grid").jqGrid({
+	    	        colModel: [
+	    	            { name: "id", label: "Issue No." },
+	    	            { name: "title", label: "Title" },
+	    	            { name: "priorityLabel", label: "Priority" },
+	    	            { name: "statusLabel", label: "Status" },
+	    	            { name: "assigneeLabel", label: "Assignee" },
+	    	        ],
+	    	        datatype: "clientSide",
+	    	        onSelectRow: function(rowid) {
+	    	        	var id = $(this).jqGrid('getCell', rowid, 'id');
+	    	        	openBoard(id);
+	    	        }
+	    	    });
+	    	};
+	    	
+	    	/* 검색 */
+	    	var search = function() {
+	    		$.ajax({
+	    	        type: 'GET',
+	    	        contentType: "application/json",
+	    	        url: "/api/issues",
+	    	        data: $('.search form').serialize(),
+	    	        dataType: 'json',
+	    	        cache: false
+				}).done(function(data) {
+		    		$('#grid')
+		    			.jqGrid('clearGridData')
+		    			.jqGrid('setGridParam', {data: data})
+		    			.trigger('reloadGrid');
+				});
+	    	};
+	    	
+	    	/* 로그인 여부에 따라 화면 처리 */
+	    	var handleLoginStutus = function() {
+	    		$.get("/api/user")
+	    		.done(function(data) { // 로그인 성공
+	    			setUserInfo(data.userAuthentication.details.response.nickname,
+	    					data.userAuthentication.details.response.profile_image);
+	    			hideLoginAndShowBoard();
+	    			loadGrid();
+	    		});
+	    	};
+	    	
+	    	var openBoard = function(id) {
+	    		$('.list').hide();
+	    		$('.board').show();
+	    		if (id) {
+	    			boardController.read(id);
+	    		}
+	    	};
+	    	
+	    	var attachRegistButtonEvent = function() {
+	    		$('#regist').click(function() {
+	    			openBoard();
+	    			event.preventDefault();
+	    		});
+	    	};
+	    	
+	    	var attachSearchButtonEvent = function() {
+	    		$('#search').click(function(event) {
+	    			search();
+	    			event.preventDefault();
+	    		});
+	    	};
+	    	
+	    	var pub = {
+    			init : function() {
+    				handleCsrf();
+    				handleLoginStutus();
+    				attachRegistButtonEvent();
+    				attachSearchButtonEvent();
+    				search();
+    			},
+    			search : function() {
+    				search();
+    			}
+	    	};
+	    	
+	    	return pub;
+	    }());
+	    
+	    /**
+	     * 이슈 본문 영역 Controller
+	     */
+	    var boardController = (function() {
+	    	
+	    	var initButtonAuthorization = function() {
+	    		// 상태에 따른 버튼 처리
+    			// OPEN - Assign, Start Progress, Save, Resolve, Close, Cancel
+    			// IN_PROGRESS - Assign, Stop Progress, Save, Resolve, Close, Cancel
+    			// RESOLVED - Assign, Save, Close, Cancel
+    			// CLOSE - Assign, Save, Reopen
+	    		$('#createBtn').addClass('TEMP').hide();
+	    		$('#saveBtn').addClass('OPEN').addClass('IN_PROGRESS').addClass('RESOLVED').addClass('CLOSED').addClass('CANCEL').hide();
+	    		$('#startProgressBtn').addClass('OPEN').hide();
+		    	$('#stopProgressBtn').addClass('IN_PROGRESS').hide();
+		    	$('#resolveBtn').addClass('OPEN').addClass('IN_PROGRESS').hide();
+		    	$('#closeBtn').addClass('OPEN').addClass('IN_PROGRESS').addClass('RESOLVED').hide();
+		    	$('#reopenBtn').addClass('RESOLVED').addClass('CLOSED').addClass('CANCEL').hide();
+		    	$('#cancelBtn').addClass('OPEN').addClass('IN_PROGRESS').addClass('RESOLVED').hide();
+	    	};
+	    	
+	    	var handleButtonVisible = function(status) {
+	    		$('.board .authorization').each(function() {
+	    			if ($(this).hasClass(status)) {
+	    				$(this).show();
+	    			} else {
+	    				$(this).hide();
+	    			}
+	    		});
+	    	};
+	    	
+	    	/* 등록 화면을 OPEN 상태로 만듦. */
+	    	var clearBoard = function() {
+	    		setBoardValue({}); 
+	    		handleButtonVisible('TEMP');
+	    		$('.board [name="priority"]').getOptions('/api/codegroups/PRIORITY/codes');
+	    		$('.board [name="assignee"]').getOptions('/api/users', {value : 'id', label : 'nickname'});
+	    	};
+	    	
+	    	var goList = function() {
+	    		$('.list').show();
+	    		$('.board').hide();
+	    		clearBoard();
+	    	};
+	    	
+	    	var setBoardValue = function(board) {
+	    		$('.board [name]').each(function() {
+	    			$(this).val(board[$(this).attr('name')]);
+	    		});
+	    	};
+	    	
+	    	var read = function(id) {
+	    		$('.board [name=id]').val(id);
+	    		$.get("/api/issues/" + id)
+	    		.done(function(data) {
+	    			setBoardValue(data);
+	    			handleButtonVisible(data.status);
+	    		});
+	    	};
+	    	
+	    	/* 이슈 생성 */
+	    	var create = function() {
+	    		$.ajax({
+	    	        type: 'POST',
+	    	        contentType: 'application/json',
+	    	        url: '/api/issues',
+	    	        data: JSON.stringify($('.board form').serializeObject()),
+	    	        dataType: 'json',
+	    	        success: function(data) {
+	    	        	$('.board [name="id"]').val(data.id);
+	    	        	$('.board [name="statusLabel"]').val('Open');
+	    	        	alert('created.');
+	    	        	handleButtonVisible('OPEN');
+	    	        	listController.search();
+	    	        },
+	    	        error : function(e) {
+	    	        	alert(e.responseText);
+	    	        }
+				});
+	    	};
+	    	
+	    	/* 이슈 수정 */
+	    	var save = function(id) {
+	    		$.ajax({
+	    	        type: 'PATCH',
+	    	        contentType: 'application/json',
+	    	        url: '/api/issues/' + id,
+	    	        data: JSON.stringify($('.board form').serializeObject()),
+	    	        dataType: 'json',
+	    	        success: function(data) {
+	    	        	alert('saved.');
+	    	        	listController.search();
+	    	        },
+	    	        error : function(e) {
+	    	        	alert(e.responseText);
+	    	        }
+				});
+	    	};
+	    	
+			var openProcessPopup = function(title, action) {
+				$( "#dialog-confirm" ).attr('title', title);
+				$( "#dialog-confirm" ).dialog({
+	    		      resizable: false,
+	    		      height: "auto",
+	    		      width: 400,
+	    		      modal: true,
+	    		      buttons: {
+	    		        Confirm: function() {
+	    		          $( this ).dialog( "close" );
+	    		        },
+	    		        Cancel: function() {
+	    		          $( this ).dialog( "close" );
+	    		        }
+	    		      }
+				});
+			};
+	    	
+	    	var attachListButtonEvent = function() {
+	    		$('#listBtn').click(function() {
+	    			goList();
+	    		});
+	    	};
+	    	
+	    	var attachCreateButtonEvent = function() {
+	    		$('#createBtn').click(function() {
+	    			create();
+	    		});
+	    	};
+	    	
+	    	var attachSaveButtonEvent = function() {
+	    		$('#saveBtn').click(function() {
+	    			save($('.board [name="id"]').val());
+	    		});
+	    	};
+	    	
+	    	var attachStartButtonEvent = function() {
+	    		$('#startProgressBtn').click(function() {
+	    			openProcessPopup('Start Progress', 'START_PROGRESS');
+	    		});
+	    	};
+	    	
+	    	var pub = {
+	    		init : function() {
+	    			initButtonAuthorization();
+	    			clearBoard();
+	    			attachListButtonEvent();
+	    			attachCreateButtonEvent();
+	    			attachSaveButtonEvent();
+	    			attachStartButtonEvent();
+	    		},
+	    		read : function(id) {
+	    			read(id);
+	    		}
+	    	};
+	    	return pub;
+	    }());
+		
+		// List 화면 초기화
+	    listController.init();
+		// 등록 화면 초기화
+	    boardController.init();
+	});
+	
+	$.fn.getOptions = function (url, config) {
+	    "use strict";
+	    
+	    var defaultConfig = { 
+    		label : 'label',
+    		value : 'code'
+		};
+	    
+	    if (!config) {
+	    	config = {};
+	    }
+	    
+	    for (var i in defaultConfig) {
+	    	if (!config[i]) {
+	    		config[i] = defaultConfig[i];
+	    	}
+	    }
+	    
+	    var elem = this;
+	    elem.html('');
+	    $.get(url)
+		.done(function(data) {
+			$.each(data, function(index, item) {
+				var option = $('<option value="' + item[config.value] + '">' + item[config.label] + '</option>');
+				if (config.defaultValue && item.code === config.defaultValue) {
+					option.prop('selected', true);
+				}
+				elem.append(option);
+			});
+		});
+	};
+	</script>
+</body>
+</html>
