@@ -38,7 +38,7 @@ public class IssueMapperTest {
 		assertThat(list.size(), equalTo(2));
 		
 		param = new Issue();
-		param.setAssignee("제프");
+		param.setAssigneeLabel("제프");
 		list = issueMapper.selectIssueList(param);
 		assertThat(list.size(), equalTo(2));
 	}

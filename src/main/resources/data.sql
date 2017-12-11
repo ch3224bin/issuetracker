@@ -13,17 +13,17 @@ values ('4', '트로이 반스');
 insert into user (id, nickname)
 values ('5', '아벳 나디르');
 	
-insert into issue (id, title, description, priority, status, assignee, create_date, update_date, resolved_date)
-values (issue_seq.nextval, 'test1', '<script>alert(1);</script>', 'A', 'OPEN', '1', sysdate, null, null);
+insert into issue (id, title, description, priority, status, assignee, reporter, resolver, create_date, update_date, resolved_date)
+values (issue_seq.nextval, 'test1', '<script>alert(1);</script>', 'A', 'OPEN', '1', '1', '', sysdate, null, null);
 
-insert into issue (id, title, description, priority, status, assignee, create_date, update_date, resolved_date)
-values (issue_seq.nextval, 'test2', ';alert(1);', 'A', 'IN_PROGRESS', '1', sysdate, null, null);
+insert into issue (id, title, description, priority, status, assignee, reporter, resolver, create_date, update_date, resolved_date)
+values (issue_seq.nextval, 'test2', ';alert(1);', 'A', 'IN_PROGRESS', '1', '5', '', sysdate, null, null);
 
-insert into issue (id, title, description, priority, status, assignee, create_date, update_date, resolved_date)
-values (issue_seq.nextval, 'test3', 'test33333', 'B', 'RESOLVED', '2', sysdate, sysdate, sysdate);
+insert into issue (id, title, description, priority, status, assignee, reporter, resolver, create_date, update_date, resolved_date)
+values (issue_seq.nextval, 'test3', 'test33333', 'B', 'RESOLVED', '2', '4', '2', sysdate, sysdate, sysdate);
 
-insert into issue (id, title, description, priority, status, assignee, create_date, update_date, resolved_date)
-values (issue_seq.nextval, 'test4', 'test44444', 'B', 'CLOSED', '3', sysdate, sysdate, sysdate);
+insert into issue (id, title, description, priority, status, assignee, reporter, resolver, create_date, update_date, resolved_date)
+values (issue_seq.nextval, 'test4', 'test44444', 'B', 'CLOSED', '3', '4', '3', sysdate, sysdate, sysdate);
 
 
 insert into code (id, code_group, code)

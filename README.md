@@ -1,30 +1,74 @@
 ## 이슈트래커
-주요 기능 : 이슈 생성, 할당, 진행, 완료
+주요 기능 : 이슈 생성, 할당, 진행, 완료  
+네이버 아이디 로그인 API을 사용하여 사용자 인증을 합니다.  
+
 ![순서도](./img/fc.png)
 
 ### 사용 기술
 
-* Gradle;
-* Spring Boot;
-* Spring Web;
-* Spring Security;
-* Spring Boot Oauth2;
-* 네이버 아이디 로그인;
-* H2;
-* Mybatis;
+* Gradle
+* Spring Boot
+* Spring Web
+* Spring Security
+* Spring Boot Oauth2
+* 네이버 아이디 로그인
+* H2
+* Mybatis
 
 
 ### 1. 설정
-테스트 코드를 포함하고 있습니다.
+#### 네이버 아이디 API 사용 설정
+application.yml  
+CLIENT\_ID, CLIENT\_SECRET 부분은 네이버 API에서 받아오셔도 되나,  
+원할한 테스트를 위해 코드 작성자의 것을 넣어두었습니다.  
+(일정시간이 지나면 삭제예정)   
+
+  
+```bash
+naver:
+  client:
+    clientId: CLIENT_ID
+    clientSecret: CLIENT_SECRET
+    accessTokenUri: https://nid.naver.com/oauth2.0/token
+    userAuthorizationUri: https://nid.naver.com/oauth2.0/authorize
+    tokenName: oauth_token
+    authenticationScheme: header
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://openapi.naver.com/v1/nid/me
+```
 
 ### 2. 실행방법:
+실행환경 : java8, gradle4.3.1
 
 ```bash
 gradle bootRun
   ```
 
-###3. 브라우저에서 아래 주소 입력 
+### 3. 브라우저에서 아래 주소 입력 
 [http://localhost:8080](http://localhost:8080)
+
+### 4. API
+#### Issues
+| Method        | HTTP request          | Description                    |
+| :------------ | :-----------          | :-------------------           |
+| GET           | /issues/**{id}**     | Gets a issue data by id.       |
+| GET           | /issues?title=&...    | Lists the issue data by query. |
+| POST          | /issues               | Create a issue.                |
+| PATCH         | /issues/**{id}**     | Update a issue.                |            
+| DELETE        | /issues/**{id}**     | Delete a issue.                |            
+[URIs relative to http://localhost:8080/api, unless otherwise noted]
+#### Codes
+| Method  | HTTP request | Description         |
+| :------------ | :----------- | :------------------- |
+| GET     | /codegroups/{codeGroup}/codes    | Lists the codes. |
+[URIs relative to http://localhost:8080/api, unless otherwise noted]
+#### Users
+| Method  | HTTP request | Description         |
+| :------------ | :----------- | :------------------- |
+| GET     | /api/users    | Lists the users. |
+| GET     | /api/me       | Gets my profiles. |
+[URIs relative to http://localhost:8080/api, unless otherwise noted]
 
 
 ## ISSUE TRACKER
@@ -33,12 +77,12 @@ gradle bootRun
 
 ### Technology stack:
 
-* Gradle;
-* Spring Boot;
-* Spring Web;
-* Spring Security;
-* Spring Boot Oauth2;
-* 네이버 아이디 로그인;
+* Gradle
+* Spring Boot
+* Spring Web
+* Spring Security
+* Spring Boot Oauth2
+* 네이버 아이디 로그인
 * H2
 * Mybatis
 
@@ -51,5 +95,5 @@ gradle bootRun
 gradle bootRun
   ```
 
-###3. Open browser and browse at 
+### 3. Open browser and browse at 
 [http://localhost:8080](http://localhost:8080)

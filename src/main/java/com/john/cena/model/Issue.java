@@ -15,6 +15,10 @@ public class Issue {
 	@NotBlank(message = "assignee can't empty!")
 	private String assignee;
 	private String assigneeLabel;
+	private String reporter;
+	private String reporterLabel;
+	private String resolver;
+	private String resolverLabel;
 	private String createDate;
 	private String updateDate;
 	private String resolvedDate;
@@ -89,5 +93,29 @@ public class Issue {
 	}
 	public void setAssigneeLabel(String assigneeLabel) {
 		this.assigneeLabel = assigneeLabel;
+	}
+	public String getReporter() {
+		return reporter;
+	}
+	public void setReporter(String reporter) {
+		this.reporter = reporter;
+	}
+	public String getReporterLabel() {
+		return reporterLabel;
+	}
+	public void setReporterLabel(String reporterLabel) {
+		this.reporterLabel = reporterLabel;
+	}
+	public String getResolver() {
+		return resolver;
+	}
+	public void setResolver(String resolver) {
+		this.resolver = resolver;
+	}
+	public String getResolverLabel() {
+		return resolverLabel;
+	}
+	public void setResolverLabel(String resolverLabel) {
+		this.resolverLabel = resolverLabel;
 	}
 }

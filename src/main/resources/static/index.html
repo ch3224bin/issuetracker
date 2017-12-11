@@ -17,7 +17,7 @@
 	    <nav><span class="title">Issue Tracker</span><img id="profileImage" class="fR"><span id="user" class="fR"></span></nav>
 	    <div class="list">
 		    <div class="button">
-		    	<button id="regist">Open Issue</button>
+		    	<button id="regist">Create Issue</button>
 		    </div>
 		    <div class="search">
 		    	<form>
@@ -53,6 +53,14 @@
 		    		<tr>
 		    			<th>Status</th>
 		    			<td><input name="statusLabel" readonly="readonly"></td>
+		    		</tr>
+		    		<tr>
+		    			<th>Reporter</th>
+		    			<td><input name="reporterLabel" readonly="readonly"></td>
+		    		</tr>
+		    		<tr>
+		    			<th>Resolver</th>
+		    			<td><input name="resolverLabel" readonly="readonly"></td>
 		    		</tr>
 		    		<tr>
 		    			<th>Priority</th>
@@ -129,6 +137,8 @@
 	    	            { name: "priorityLabel", label: "Priority" },
 	    	            { name: "statusLabel", label: "Status" },
 	    	            { name: "assigneeLabel", label: "Assignee" },
+	    	            { name: "reporterLabel", label: "Reporter" },
+	    	            { name: "resolverLabel", label: "Resolver" },
 	    	        ],
 	    	        datatype: "clientSide",
 	    	        onSelectRow: function(rowid) {
@@ -157,7 +167,7 @@
 	    	
 	    	/* 로그인 여부에 따라 화면 처리 */
 	    	var handleLoginStutus = function() {
-	    		$.get("/api/user")
+	    		$.get("/api/me")
 	    		.done(function(data) { // 로그인 성공
 	    			setUserInfo(data.userAuthentication.details.response.nickname,
 	    					data.userAuthentication.details.response.profile_image);
@@ -257,7 +267,7 @@
 	    	
 	    	var read = function(id) {
 	    		$('.board [name=id]').val(id);
-	    		$.get("/api/issues/" + id)
+	    		return $.get("/api/issues/" + id)
 	    		.done(function(data) {
 	    			setBoardValue(data);
 	    			handleButtonVisible(data.status);
@@ -266,7 +276,7 @@
 	    	
 	    	/* 이슈 생성 */
 	    	var create = function() {
-	    		$.ajax({
+	    		return $.ajax({
 	    	        type: 'POST',
 	    	        contentType: 'application/json',
 	    	        url: '/api/issues',
@@ -287,7 +297,7 @@
 	    	
 	    	/* 이슈 수정 */
 	    	var save = function(id) {
-	    		$.ajax({
+	    		return $.ajax({
 	    	        type: 'PATCH',
 	    	        contentType: 'application/json',
 	    	        url: '/api/issues/' + id,
@@ -296,6 +306,33 @@
 	    	        success: function(data) {
 	    	        	alert('saved.');
 	    	        	listController.search();
+	    	        },
+	    	        error : function(e) {
+	    	        	alert(e.responseText);
+	    	        }
+				});
+	    	};
+	    	
+	    	/* 이슈 Status 변환 처리 */
+	    	var process = function(id, status, assignee, comment) {
+	    		var pramObj = $('.board form').serializeObject();
+	    		pramObj['assignee'] = assignee||pramObj.assignee;
+	    		pramObj['comment'] = comment||'';
+	    		pramObj['status'] = status||'';
+	    		
+	    		return $.ajax({
+	    	        type: 'PATCH',
+	    	        contentType: 'application/json',
+	    	        url: '/api/issues/' + id,
+	    	        data: JSON.stringify(pramObj),
+	    	        dataType: 'json',
+	    	        success: function(data) {
+	    	        	read(data.id)
+	    	        	.done(function(){
+		    	        	listController.search();
+		    	        	$('#dialog-confirm').dialog( "close" );
+	    	        	});
+	    	        	
 	    	        },
 	    	        error : function(e) {
 	    	        	alert(e.responseText);
@@ -341,7 +378,43 @@
 	    	
 	    	var attachStartButtonEvent = function() {
 	    		$('#startProgressBtn').click(function() {
-	    			openProcessPopup('Start Progress', 'START_PROGRESS');
+	    			process($('.board [name="id"]').val(), 'IN_PROGRESS');
+	    		});
+	    	};
+	    	
+	    	var attachStopButtonEvent = function() {
+	    		$('#stopProgressBtn').click(function() {
+	    			process($('.board [name="id"]').val(), 'OPEN');
+	    		});
+	    	};
+	    	
+	    	var attachAssignButtonEvent = function() {
+	    		$('#assignBtn').click(function() {
+	    			openProcessPopup('Assign', 'START_PROGRESS');
+	    		});
+	    	};
+	    	
+	    	var attachResolveButtonEvent = function() {
+	    		$('#resolveBtn').click(function() {
+	    			openProcessPopup('Resolve', 'START_PROGRESS');
+	    		});
+	    	};
+	    	
+	    	var attachCloseButtonEvent = function() {
+	    		$('#closeBtn').click(function() {
+	    			openProcessPopup('Close', 'START_PROGRESS');
+	    		});
+	    	};
+	    	
+	    	var attachReopenButtonEvent = function() {
+	    		$('#reopenBtn').click(function() {
+	    			openProcessPopup('Reopen', 'START_PROGRESS');
+	    		});
+	    	};
+	    	
+	    	var attachCancelButtonEvent = function() {
+	    		$('#cancelBtn').click(function() {
+	    			openProcessPopup('Cancel', 'START_PROGRESS');
 	    		});
 	    	};
 	    	
@@ -353,6 +426,12 @@
 	    			attachCreateButtonEvent();
 	    			attachSaveButtonEvent();
 	    			attachStartButtonEvent();
+	    			attachStopButtonEvent();
+	    			attachAssignButtonEvent();
+	    			attachResolveButtonEvent();
+	    			attachCloseButtonEvent();
+	    			attachReopenButtonEvent();
+	    			attachCancelButtonEvent();
 	    		},
 	    		read : function(id) {
 	    			read(id);

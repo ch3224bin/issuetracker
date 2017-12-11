@@ -20,8 +20,8 @@ public class UserController {
 		this.userService = userService;
 	}
 
-	@RequestMapping(value = "/api/user", method = RequestMethod.GET)
-	public ResponseEntity<?> user(Principal principal) {
+	@RequestMapping(value = "/api/me", method = RequestMethod.GET)
+	public ResponseEntity<?> me(Principal principal) {
 		return ResponseEntity.ok(principal);
 	}
 	

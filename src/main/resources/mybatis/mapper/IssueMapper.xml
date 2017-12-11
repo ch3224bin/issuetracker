@@ -49,9 +49,15 @@
 			    AND A.CODE = STATUS
 			    AND A.CODE_GROUP = 'STATUS'
 			    AND B.LANG = 'en') AS STATUS_LABEL,
+			ASSIGNEE,
 			(SELECT A.NICKNAME FROM USER A
 			  WHERE ASSIGNEE = A.ID) AS ASSIGNEE_LABEL,
-			ASSIGNEE,
+			REPORTER,
+			(SELECT A.NICKNAME FROM USER A
+			  WHERE REPORTER = A.ID) AS REPORTER_LABEL,
+			RESOLVER,
+			(SELECT A.NICKNAME FROM USER A
+			  WHERE RESOLVER = A.ID) AS RESOLVER_LABEL,
 			TO_CHAR(CREATE_DATE, 'YYYY-MM-DD') CREATE_DATE,
 			TO_CHAR(UPDATE_DATE, 'YYYY-MM-DD') UPDATE_DATE,
 			TO_CHAR(RESOLVED_DATE , 'YYYY-MM-DD') RESOLVED_DATE
@@ -63,8 +69,8 @@
 	</select>
 	
 	<insert id="createIssue" parameterType="Issue">
-		INSERT INTO ISSUE (ID, TITLE, DESCRIPTION, PRIORITY, STATUS, ASSIGNEE, CREATE_DATE)
-		VALUES (#{id}, #{title}, #{description}, #{priority}, 'OPEN', #{assignee}, SYSDATE)
+		INSERT INTO ISSUE (ID, TITLE, DESCRIPTION, PRIORITY, STATUS, ASSIGNEE, REPORTER, CREATE_DATE)
+		VALUES (#{id}, #{title}, #{description}, #{priority}, 'OPEN', #{assignee}, #{reporter}, SYSDATE)
 	</insert>
 	
 	<update id="updateIssue" parameterType="Issue">

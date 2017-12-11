@@ -12,6 +12,8 @@ create table issue (
 	priority varchar2(10),
 	status varchar2(20),
 	assignee varchar2(20),
+	reporter varchar2(20),
+	resolver varchar2(20),
 	create_date date,
 	update_date date,
 	resolved_date date
