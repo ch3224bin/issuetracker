@@ -1,14 +1,10 @@
 package com.john.cena.service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Service;
 
 import com.john.cena.mapper.IssueMapper;
@@ -18,10 +14,16 @@ import com.john.cena.model.Issue;
 public class IssueServiceImpl implements IssueService {
 	
 	private IssueMapper issueMapper;
+	private UserService userService;
 
 	@Autowired
 	public void setIssueMapper(IssueMapper issueMapper) {
 		this.issueMapper = issueMapper;
+	}
+	
+	@Autowired
+	public void setUserService(UserService userService) {
+		this.userService = userService;
 	}
 
 	/**
@@ -51,25 +53,11 @@ public class IssueServiceImpl implements IssueService {
 	 * 이슈 생성
 	 */
 	public Issue createIssue(Issue issue) {
-		Map<String, String> userInfo = getCurrentUserInfo();
+		Map<String, String> userInfo = userService.getCurrentUserInfo();
 		issue.setReporter(userInfo.get("id"));
 		issue.setId(generateIssueId());
 		issueMapper.createIssue(issue);
 		return issue;
-	}
-
-	@SuppressWarnings("unchecked")
-	private Map<String, String> getCurrentUserInfo() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		Map<String, String> userInfo = new HashMap<String, String>();
-		OAuth2Authentication auth = (OAuth2Authentication)authentication;
-		if (auth != null) {
-			Map<String, Map<String, String>> map = (Map<String, Map<String, String>>)auth.getUserAuthentication().getDetails();
-			if (map != null) {
-				userInfo = map.get("response");
-			}
-		}
-		return userInfo;
 	}
 
 	/**
@@ -88,7 +76,7 @@ public class IssueServiceImpl implements IssueService {
 	}
 	
 	public String generateIssueId() {
-		Issue issue = issueMapper.selectMaxIssueId();
+		Issue issue = issueMapper.generateIssueId();
 		return issue.getId();
 	}
 	

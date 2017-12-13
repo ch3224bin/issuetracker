@@ -25,7 +25,13 @@
 		</where>
 	</select>
 	
-	<select id="selectIssue" parameterType="String" resultType="Issue">
+	<resultMap id="issueWithComment" type="Issue" autoMapping="true">
+		<id property="id" column="id" javaType="string" />
+		<collection property="comments" javaType="ArrayList"
+			column="id" ofType="Comment" select="com.john.cena.mapper.CommentMapper.selectCommentList" />
+	</resultMap>
+	
+	<select id="selectIssue" parameterType="String" resultMap="issueWithComment">
 		<include refid="selectIssueSql" />
 		<where>
 			AND ID = #{id}
@@ -64,7 +70,7 @@
 		FROM ISSUE
 	</sql>
 	
-	<select id="selectMaxIssueId" resultType="Issue">
+	<select id="generateIssueId" resultType="Issue">
 		SELECT ISSUE_SEQ.NEXTVAL ID FROM DUAL
 	</select>
 	

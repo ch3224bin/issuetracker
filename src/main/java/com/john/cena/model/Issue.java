@@ -1,5 +1,7 @@
 package com.john.cena.model;
 
+import java.util.List;
+
 import org.hibernate.validator.constraints.NotBlank;
 
 public class Issue {
@@ -22,6 +24,8 @@ public class Issue {
 	private String createDate;
 	private String updateDate;
 	private String resolvedDate;
+	private List<Comment> comments;
+	
 	public String getId() {
 		return id;
 	}
@@ -117,5 +121,11 @@ public class Issue {
 	}
 	public void setResolverLabel(String resolverLabel) {
 		this.resolverLabel = resolverLabel;
+	}
+	public List<Comment> getComments() {
+		return comments;
+	}
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
 	}
 }

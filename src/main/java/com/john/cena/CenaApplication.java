@@ -110,7 +110,6 @@ public class CenaApplication extends WebSecurityConfigurerAdapter {
 	    		@SuppressWarnings("unchecked")
 				Map<String, String> userInfo = ((Map<String, Map<String, String>>)auth.getUserAuthentication().getDetails()).get("response");
 	    		// 사용자 등록
-	    		request.getSession().setAttribute("userInfo", userInfo);
 	    		userService.registUser(userInfo);
 		        super.onAuthenticationSuccess(request, response, authentication);
 		    }

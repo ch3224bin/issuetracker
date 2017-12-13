@@ -50,6 +50,7 @@ gradle bootRun
 
 ### 4. API
 #### Issues
+URIs relative to http://localhost:8080/api, unless otherwise noted  
 | Method        | HTTP request          | Description                    |
 | :------------ | :-----------          | :-------------------           |
 | GET           | /issues/**{id}**     | Gets a issue data by id.       |
@@ -57,18 +58,26 @@ gradle bootRun
 | POST          | /issues               | Create a issue.                |
 | PATCH         | /issues/**{id}**     | Update a issue.                |            
 | DELETE        | /issues/**{id}**     | Delete a issue.                |            
-[URIs relative to http://localhost:8080/api, unless otherwise noted]
+#### Comments
+URIs relative to http://localhost:8080/api, unless otherwise noted  
+| Method        | HTTP request          | Description                    |
+| :------------ | :-----------          | :-------------------           |
+| GET           | /issues/**{issueId}**/comments/**{id}**     | Gets a comment data by id.       |
+| GET           | /issues/**{issueId}**/comments               | Lists the comment.               |
+| POST          | /issues/**{issueId}**/comments               | Create a comment.                |
+| PATCH         | /issues/**{issueId}**/comments/**{id}**     | Update a comment.                |            
+| DELETE        | /issues/**{issueId}**/comments/**{id}**     | Delete a comment.                |            
 #### Codes
+URIs relative to http://localhost:8080/api, unless otherwise noted  
 | Method  | HTTP request | Description         |
 | :------------ | :----------- | :------------------- |
 | GET     | /codegroups/{codeGroup}/codes    | Lists the codes. |
-[URIs relative to http://localhost:8080/api, unless otherwise noted]
 #### Users
+URIs relative to http://localhost:8080/api, unless otherwise noted  
 | Method  | HTTP request | Description         |
 | :------------ | :----------- | :------------------- |
 | GET     | /api/users    | Lists the users. |
 | GET     | /api/me       | Gets my profiles. |
-[URIs relative to http://localhost:8080/api, unless otherwise noted]
 
 
 ## ISSUE TRACKER

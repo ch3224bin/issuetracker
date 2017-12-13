@@ -13,5 +13,5 @@ public interface IssueMapper {
 	public void createIssue(Issue issue);
 	public void updateIssue(Issue issue);
 	public void deleteIssue(String id);
-	public Issue selectMaxIssueId();
+	public Issue generateIssueId();
 }

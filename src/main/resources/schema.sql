@@ -1,5 +1,7 @@
 create sequence issue_seq;
 
+create sequence comment_seq;
+
 create table user (
 	id varchar2(20),
 	nickname varchar2(40)
@@ -29,4 +31,14 @@ create table label (
 	code_id varchar2(20),
 	label varchar2(100),
 	lang varchar2(3)
+);
+
+create table comment (
+	id varchar2(20),
+	issue_id varchar2(20),
+	comment varchar2(2000),
+	create_user varchar2(20),
+	update_user varchar2(20),
+	create_date date,
+	update_date date
 );

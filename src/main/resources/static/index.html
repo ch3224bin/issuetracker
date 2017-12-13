@@ -43,7 +43,7 @@
 	    	<button id="closeBtn" class="authorization">Close</button>
 	    	<button id="reopenBtn" class="authorization">Reopen</button>
 	    	<button id="cancelBtn" class="authorization">Cancel</button>
-	    	<form>
+	    	<form id="boardForm">
 	    		<input type="hidden" name="id">
 		    	<table>
 		    		<tr>
@@ -78,6 +78,14 @@
 		    		</tr>
 		    	</table>
 	    	</form>
+	    	<form>
+		    	<fieldset>
+		    		<legend>Comment</legend>
+		    		<textarea name="comment"></textarea>
+		    		<button id="sendComment">Send</button>
+		    	</fieldset>
+	    	</form>
+	    	<ul class="comments"></ul>
 	    </div>
 	</div>
 	<div id="dialog-confirm" style="display: none;">
@@ -253,16 +261,39 @@
 	    		$('.board [name="assignee"]').getOptions('/api/users', {value : 'id', label : 'nickname'});
 	    	};
 	    	
+	    	var clearCommentList = function() {
+	    		$('.board .comments').html('');
+	    	};
+	    	
 	    	var goList = function() {
 	    		$('.list').show();
 	    		$('.board').hide();
 	    		clearBoard();
+	    		clearCommentList();
 	    	};
 	    	
+	    	/* 등록화면 값 세팅 */
 	    	var setBoardValue = function(board) {
 	    		$('.board [name]').each(function() {
+	    			console.log($(this).attr('name'));
+	    			console.log(board[$(this).attr('name')]);
 	    			$(this).val(board[$(this).attr('name')]);
 	    		});
+	    	};
+	    	
+	    	/* Comment List를 구성 */
+	    	var drawCommentList = function(comments) {
+	    		if (!comments) {
+	    			return;
+	    		}
+	    		
+	    		for(var i = 0, n = comments.length; i < n; i++) {
+		    		$('.board .comments')
+		    			.append('<li><p>' 
+		    					+ comments[i].comment + '</p>'
+		    					+ '<span>' + comments[i].createUserLabel + ', </span>'
+		    					+ '<span>' + comments[i].createDate +  '</span></li>');
+	    		}
 	    	};
 	    	
 	    	var read = function(id) {
@@ -271,6 +302,7 @@
 	    		.done(function(data) {
 	    			setBoardValue(data);
 	    			handleButtonVisible(data.status);
+	    			drawCommentList(data.comments);
 	    		});
 	    	};
 	    	
@@ -280,7 +312,7 @@
 	    	        type: 'POST',
 	    	        contentType: 'application/json',
 	    	        url: '/api/issues',
-	    	        data: JSON.stringify($('.board form').serializeObject()),
+	    	        data: JSON.stringify($('#boardForm').serializeObject()),
 	    	        dataType: 'json',
 	    	        success: function(data) {
 	    	        	$('.board [name="id"]').val(data.id);
@@ -301,7 +333,7 @@
 	    	        type: 'PATCH',
 	    	        contentType: 'application/json',
 	    	        url: '/api/issues/' + id,
-	    	        data: JSON.stringify($('.board form').serializeObject()),
+	    	        data: JSON.stringify($('#boardForm').serializeObject()),
 	    	        dataType: 'json',
 	    	        success: function(data) {
 	    	        	alert('saved.');
@@ -315,7 +347,7 @@
 	    	
 	    	/* 이슈 Status 변환 처리 */
 	    	var process = function(id, status, assignee, comment) {
-	    		var pramObj = $('.board form').serializeObject();
+	    		var pramObj = $('#boardForm').serializeObject();
 	    		pramObj['assignee'] = assignee||pramObj.assignee;
 	    		pramObj['comment'] = comment||'';
 	    		pramObj['status'] = status||'';
@@ -333,6 +365,39 @@
 		    	        	$('#dialog-confirm').dialog( "close" );
 	    	        	});
 	    	        	
+	    	        },
+	    	        error : function(e) {
+	    	        	alert(e.responseText);
+	    	        }
+				});
+	    	};
+	    	
+	    	var getCommentList = function() {
+	    		var issueId = $('.board [name="id"]').val();
+	    		$.get('/api/issues/' + issueId + '/comments').then(function(data) {
+	    			clearCommentList();
+	    			drawCommentList(data);
+	    		}, function(e) {
+	    			alert(e.responseText);
+	    		});
+	    	};
+	    	
+	    	var sendComment = function() {
+	    		var issueId = $('.board [name="id"]').val();
+	    		var pramObj = {
+	    				issueId : issueId,
+	    				comment : $('.board [name="comment"]').val()
+	    		};
+	    		
+	    		return $.ajax({
+	    	        type: 'POST',
+	    	        contentType: 'application/json',
+	    	        url: '/api/issues/' + issueId + '/comments',
+	    	        data: JSON.stringify(pramObj),
+	    	        dataType: 'json',
+	    	        success: function(data) {
+	    	        	$('.board [name="comment"]').val('');
+	    	        	getCommentList();
 	    	        },
 	    	        error : function(e) {
 	    	        	alert(e.responseText);
@@ -418,6 +483,13 @@
 	    		});
 	    	};
 	    	
+	    	var attachSendCommentButtonEvent = function() {
+	    		$('#sendComment').click(function(event) {
+	    			sendComment();
+	    			event.preventDefault();
+	    		});
+	    	};
+	    	
 	    	var pub = {
 	    		init : function() {
 	    			initButtonAuthorization();
@@ -432,6 +504,7 @@
 	    			attachCloseButtonEvent();
 	    			attachReopenButtonEvent();
 	    			attachCancelButtonEvent();
+	    			attachSendCommentButtonEvent();
 	    		},
 	    		read : function(id) {
 	    			read(id);

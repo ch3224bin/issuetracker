@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.io.IOException;
 import java.util.List;
@@ -70,7 +71,9 @@ public class IssueControllerTest {
         mockMvc.perform(get("/api/issues?title=test1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(equalTo(jsonString)));
+                .andExpect(content().string(equalTo(jsonString)))
+                .andExpect(jsonPath("$[0]['id']", equalTo("1")))
+                ;
     }
     
     @Test
@@ -78,11 +81,19 @@ public class IssueControllerTest {
     	String id = "1";
     	Issue issue = issueService.getIssue(id).get();
         String jsonString = this.jsonStringFromObject(issue);
+        
+        System.out.println(jsonString);
 
         mockMvc.perform(get("/api/issues/" + id))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(equalTo(jsonString)));
+        
+        mockMvc.perform(get("/api/issues/2"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.comments[0].comment", equalTo("test test")))
+                .andExpect(jsonPath("$.comments[0].createUserLabel", equalTo("아벳 나디르")));
         
         // 예외처리 테스트
         mockMvc.perform(get("/api/issues/1111"))

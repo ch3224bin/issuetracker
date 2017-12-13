@@ -25,6 +25,11 @@ values (issue_seq.nextval, 'test3', 'test33333', 'B', 'RESOLVED', '2', '4', '2',
 insert into issue (id, title, description, priority, status, assignee, reporter, resolver, create_date, update_date, resolved_date)
 values (issue_seq.nextval, 'test4', 'test44444', 'B', 'CLOSED', '3', '4', '3', sysdate, sysdate, sysdate);
 
+insert into comment(id, issue_id, comment, create_user, update_user, create_date, update_date)
+values ('1', '2', 'test test', '5', null, sysdate, null);
+
+insert into comment(id, issue_id, comment, create_user, update_user, create_date, update_date)
+values ('2', '2', 'test test22222', '1', null, sysdate, null);
 
 insert into code (id, code_group, code)
 values ('1', 'PRIORITY', 'A');
