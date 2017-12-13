@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.john.cena.mapper.CommentMapper">
+	<select id="selectCommentList" parameterType="Comment" resultType="Comment">
+		<include refid="selectCommentSql" />
+		   AND ISSUE_ID = #{id}
+	</select>
+	
+	<select id="selectCode" parameterType="Comment" resultType="Comment">
+		<include refid="selectCommentSql" />
+		   AND ISSUE_ID = #{id}
+		   AND ID = #{id}
+	</select>
+	
+	<sql id="selectCommentSql">
+	    SELECT A.*, B.NICKNAME CREATE_USER_LABEL
+		  FROM COMMENT A, USER B
+		 WHERE A.CREATE_USER = B.ID
+	</sql>
+	
+	<insert id="createComment" parameterType="Comment">
+		INSERT INTO COMMENT (ID, ISSUE_ID, COMMENT, CREATE_USER, CREATE_DATE)
+		VALUES (#{id}, #{issueId}, #{comment}, #{createUser}, SYSDATE)
+	</insert>
+	
+	<update id="updateComment" parameterType="Comment">
+		UPDATE COMMENT
+		   SET
+		       COMMENT = #{comment},
+		       UPDATE_USER = #{updateUser},
+		       UPDATE_DATE = SYSDATE
+		 WHERE ISSUE_ID = #{issueId}
+		   AND ID = #{id}
+	</update>
+	
+	<delete id="deleteComment" parameterType="Comment">
+		DELETE FROM COMMENT
+		 WHERE ISSUE_ID = #{issueId}
+		   AND ID = #{id}
+	</delete>
+	
+	<select id="generateCommentId" resultType="Comment">
+		SELECT COMMENT_SEQ.NEXTVAL ID FROM DUAL
+	</select>
+</mapper>
