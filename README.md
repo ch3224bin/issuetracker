@@ -50,7 +50,8 @@ gradle bootRun
 
 ### 4. API
 #### Issues
-URIs relative to http://localhost:8080/api, unless otherwise noted  
+URIs relative to http://localhost:8080/api, unless otherwise noted 
+ 
 | Method        | HTTP request          | Description                    |
 |---------------|-----------------------|--------------------------------|
 | GET           | /issues/**{id}**     | Gets a issue data by id.       |
@@ -61,6 +62,7 @@ URIs relative to http://localhost:8080/api, unless otherwise noted
 
 #### Comments
 URIs relative to http://localhost:8080/api, unless otherwise noted  
+
 | Method        | HTTP request          | Description                    |
 |---------------|-----------------------|--------------------------------|
 | GET           | /issues/**{issueId}**/comments/**{id}**     | Gets a comment data by id.       |
@@ -71,12 +73,14 @@ URIs relative to http://localhost:8080/api, unless otherwise noted
 
 #### Codes
 URIs relative to http://localhost:8080/api, unless otherwise noted  
+
 | Method  | HTTP request | Description         |
 |---------|--------------|---------------------|
 | GET     | /codegroups/{codeGroup}/codes    | Lists the codes. |
 
 #### Users
 URIs relative to http://localhost:8080/api, unless otherwise noted  
+
 | Method  | HTTP request | Description         |
 |---------|--------------|---------------------|
 | GET     | /api/users    | Lists the users. |
