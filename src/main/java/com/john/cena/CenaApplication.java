@@ -1,7 +1,6 @@
 package com.john.cena;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.ServletException;
@@ -25,7 +24,6 @@ import org.springframework.security.oauth2.client.filter.OAuth2ClientAuthenticat
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -105,12 +103,8 @@ public class CenaApplication extends WebSecurityConfigurerAdapter {
 	    	@Override
 		    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, 
 		    	Authentication authentication) throws ServletException, IOException {
-	    		OAuth2Authentication auth = (OAuth2Authentication)authentication;
-	    		// 사용자 정보 얻기
-	    		@SuppressWarnings("unchecked")
-				Map<String, String> userInfo = ((Map<String, Map<String, String>>)auth.getUserAuthentication().getDetails()).get("response");
 	    		// 사용자 등록
-	    		userService.registUser(userInfo);
+	    		userService.registCurrentUser();
 		        super.onAuthenticationSuccess(request, response, authentication);
 		    }
 	    };

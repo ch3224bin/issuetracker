@@ -24,7 +24,7 @@ CLIENT\_ID, CLIENT\_SECRET 부분은 네이버 API에서 받아오셔도 되나,
 (일정시간이 지나면 삭제예정)   
 
   
-```bash
+```
 naver:
   client:
     clientId: CLIENT_ID
@@ -52,57 +52,32 @@ gradle bootRun
 #### Issues
 URIs relative to http://localhost:8080/api, unless otherwise noted  
 | Method        | HTTP request          | Description                    |
-| :------------ | :-----------          | :-------------------           |
+| ------------  | -----------           | -------------------            |
 | GET           | /issues/**{id}**     | Gets a issue data by id.       |
 | GET           | /issues?title=&...    | Lists the issue data by query. |
 | POST          | /issues               | Create a issue.                |
 | PATCH         | /issues/**{id}**     | Update a issue.                |            
 | DELETE        | /issues/**{id}**     | Delete a issue.                |            
+
 #### Comments
 URIs relative to http://localhost:8080/api, unless otherwise noted  
 | Method        | HTTP request          | Description                    |
-| :------------ | :-----------          | :-------------------           |
+| ------------ | -----------            | -------------------            |
 | GET           | /issues/**{issueId}**/comments/**{id}**     | Gets a comment data by id.       |
 | GET           | /issues/**{issueId}**/comments               | Lists the comment.               |
 | POST          | /issues/**{issueId}**/comments               | Create a comment.                |
 | PATCH         | /issues/**{issueId}**/comments/**{id}**     | Update a comment.                |            
 | DELETE        | /issues/**{issueId}**/comments/**{id}**     | Delete a comment.                |            
+
 #### Codes
 URIs relative to http://localhost:8080/api, unless otherwise noted  
 | Method  | HTTP request | Description         |
-| :------------ | :----------- | :------------------- |
+| ------------ | ----------- | ------------------- |
 | GET     | /codegroups/{codeGroup}/codes    | Lists the codes. |
+
 #### Users
 URIs relative to http://localhost:8080/api, unless otherwise noted  
 | Method  | HTTP request | Description         |
-| :------------ | :----------- | :------------------- |
+| ------------ | ----------- | ------------------- |
 | GET     | /api/users    | Lists the users. |
 | GET     | /api/me       | Gets my profiles. |
-
-
-## ISSUE TRACKER
-주요 기능 : 이슈 생성, 할당, 진행, 완료
-![Flowchart](./img/fc.png)
-
-### Technology stack:
-
-* Gradle
-* Spring Boot
-* Spring Web
-* Spring Security
-* Spring Boot Oauth2
-* 네이버 아이디 로그인
-* H2
-* Mybatis
-
-### 1. Configuration
-
-
-### 2. To run this application use:
-
-```bash
-gradle bootRun
-  ```
-
-### 3. Open browser and browse at 
-[http://localhost:8080](http://localhost:8080)

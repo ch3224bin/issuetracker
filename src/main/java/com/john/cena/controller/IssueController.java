@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.h2.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -89,6 +90,14 @@ public class IssueController {
 		// 필수값 validation error 메세지 처리
 		if (errors.hasErrors()) {
 			return getBadRequestResponseEntity(errors);
+		}
+		
+		// 액션 별 간편 코멘트 입력
+		if (!StringUtils.isNullOrEmpty(issue.getComment())) {
+			Comment comment = new Comment();
+			comment.setIssueId(id);
+			comment.setComment(issue.getComment());
+			commentService.createComment(comment);
 		}
 		
 		issue.setId(id);

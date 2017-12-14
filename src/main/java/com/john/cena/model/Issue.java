@@ -24,6 +24,7 @@ public class Issue {
 	private String createDate;
 	private String updateDate;
 	private String resolvedDate;
+	private String comment;
 	private List<Comment> comments;
 	
 	public String getId() {
@@ -127,5 +128,11 @@ public class Issue {
 	}
 	public void setComments(List<Comment> comments) {
 		this.comments = comments;
+	}
+	public String getComment() {
+		return comment;
+	}
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 }
