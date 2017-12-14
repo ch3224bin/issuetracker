@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import org.h2.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,7 +93,7 @@ public class IssueController {
 		}
 		
 		// 액션 별 간편 코멘트 입력
-		if (!StringUtils.isNullOrEmpty(issue.getComment())) {
+		if (!StringUtils.isNotBlank(issue.getComment())) {
 			Comment comment = new Comment();
 			comment.setIssueId(id);
 			comment.setComment(issue.getComment());

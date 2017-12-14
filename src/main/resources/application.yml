@@ -20,6 +20,7 @@ spring:
     url: jdbc:h2:mem:testdb;MODE=ORACLE;DATABASE_TO_UPPER=FALSE
     username: sa
     password:
+    sqlScriptEncoding: UTF-8
 
 mybatis:
   type-aliases-package: com.john.cena.model
